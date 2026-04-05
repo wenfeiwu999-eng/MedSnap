@@ -1,0 +1,14 @@
+*.db
+*.db-journal
+__pycache__/
+*.py[cod]
+*.so
+venv/
+.env
+*.log
+*.tmp
+test_*.xlsx
+start.bat
+.secret_key
+*.bak
+nul

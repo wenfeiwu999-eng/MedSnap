@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MedSnap - 登录</title>
+<style>
+:root{--primary:#2563eb;--primary-light:#3b82f6;--success:#059669;--danger:#dc2626;--bg:#f0f4f8;--card:#fff;--text:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;--shadow:0 4px 24px rgba(0,0,0,.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.login-wrapper{width:100%;max-width:420px;padding:0 24px}
+.brand-header{text-align:center;margin-bottom:32px}
+.brand-header .logo-icon{font-size:48px;margin-bottom:12px}
+.brand-header h1{font-size:28px;font-weight:700;background:linear-gradient(135deg,#1e40af,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brand-header .slogan{font-size:14px;color:var(--text-secondary);margin-top:6px}
+.auth-card{background:var(--card);border-radius:16px;padding:36px 32px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.tab-switch{display:flex;margin-bottom:28px;border-bottom:2px solid var(--border)}
+.tab-switch button{flex:1;padding:12px 0;font-size:15px;font-weight:600;background:none;border:none;color:var(--text-secondary);cursor:pointer;position:relative;transition:color .3s}
+.tab-switch button.active{color:var(--primary)}
+.tab-switch button.active::after{content:"";position:absolute;bottom:-2px;left:20%;width:60%;height:2px;background:var(--primary);border-radius:1px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.form-group input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;transition:border-color .3s,box-shadow .3s;outline:none}
+.form-group input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.submit-btn{width:100%;padding:12px;border:none;border-radius:8px;font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,#1e40af,#3b82f6);cursor:pointer;transition:opacity .3s,transform .2s;margin-top:4px}
+.submit-btn:hover{opacity:.9;transform:translateY(-1px)}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.msg{margin-top:16px;padding:10px 14px;border-radius:8px;font-size:13px;display:none}
+.msg.error{display:block;background:#fef2f2;color:var(--danger);border:1px solid #fecaca}
+.msg.success{display:block;background:#ecfdf5;color:var(--success);border:1px solid #a7f3d0}
+.auth-form{display:none}.auth-form.active{display:block}
+</style>
+</head>
+<body>
+<div class="login-wrapper">
+<div class="brand-header">
+<div class="logo-icon">&#129656;</div>
+<h1>MedSnap</h1>
+<div class="slogan">临床数据智能平台</div>
+</div>
+<div class="auth-card">
+<div class="tab-switch">
+<button id="tab-login" class="active" onclick="switchTab('login')">登录</button>
+<button id="tab-register" onclick="switchTab('register')">注册</button>
+</div>
+<form id="form-login" class="auth-form active" onsubmit="return handleLogin(event)">
+<div class="form-group"><label>用户名</label><input type="text" id="login-username" placeholder="请输入用户名" required></div>
+<div class="form-group"><label>密码</label><input type="password" id="login-password" placeholder="请输入密码" required></div>
+<button type="submit" class="submit-btn" id="login-btn">登录</button>
+<div id="login-msg" class="msg"></div>
+</form>
+<form id="form-register" class="auth-form" onsubmit="return handleRegister(event)">
+<div class="form-group"><label>用户名</label><input type="text" id="reg-username" placeholder="2-30个字符" required></div>
+<div class="form-group"><label>显示名称</label><input type="text" id="reg-displayname" placeholder="可选"></div>
+<div class="form-group"><label>密码</label><input type="password" id="reg-password" placeholder="至少6个字符" required></div>
+<div class="form-group"><label>确认密码</label><input type="password" id="reg-password2" placeholder="再次输入密码" required></div>
+<button type="submit" class="submit-btn" id="reg-btn">注册</button>
+<div id="reg-msg" class="msg"></div>
+</form>
+</div></div>
+<script>
+function switchTab(t){
+  document.getElementById("tab-login").classList.toggle("active",t==="login");
+  document.getElementById("tab-register").classList.toggle("active",t==="register");
+  document.getElementById("form-login").classList.toggle("active",t==="login");
+  document.getElementById("form-register").classList.toggle("active",t==="register");
+  document.getElementById("login-msg").className="msg";
+  document.getElementById("reg-msg").className="msg";}
+function showMsg(id,txt,tp){var e=document.getElementById(id);e.textContent=txt;e.className="msg "+tp;}
+async function handleLogin(e){e.preventDefault();var b=document.getElementById("login-btn");b.disabled=true;b.textContent="登录中...";
+try{var r=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({username:document.getElementById("login-username").value.trim(),password:document.getElementById("login-password").value})});
+var d=await r.json();if(d.status==="success"){showMsg("login-msg","登录成功","success");setTimeout(function(){window.location.href="/"},500)}
+else{showMsg("login-msg",d.msg||"登录失败","error")}}catch(x){showMsg("login-msg","网络错误","error")}
+b.disabled=false;b.textContent="登录";return false}
+async function handleRegister(e){e.preventDefault();
+var p1=document.getElementById("reg-password").value;var p2=document.getElementById("reg-password2").value;
+if(p1!==p2){showMsg("reg-msg","两次密码不一致","error");return false}
+var b=document.getElementById("reg-btn");b.disabled=true;b.textContent="注册中...";
+try{var r=await fetch("/api/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({username:document.getElementById("reg-username").value.trim(),password:p1,display_name:document.getElementById("reg-displayname").value.trim()||undefined})});
+var d=await r.json();if(d.status==="success"){showMsg("reg-msg","注册成功","success");setTimeout(function(){window.location.href="/"},500)}
+else{showMsg("reg-msg",d.msg||"注册失败","error")}}catch(x){showMsg("reg-msg","网络错误","error")}
+b.disabled=false;b.textContent="注册";return false}
+</script>
+</body>
+</html>

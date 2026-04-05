@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedSnap - 管理后台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f0f2f5;color:#1e293b;min-height:100vh}
+.header{background:linear-gradient(135deg,#1e40af,#3b82f6);color:white;padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:20px;font-weight:700}
+.header a{color:white;text-decoration:none;font-size:14px;opacity:0.85}
+.header a:hover{opacity:1}
+.tabs{display:flex;gap:0;background:white;border-bottom:2px solid #e2e8f0;padding:0 32px}
+.tab{padding:14px 24px;cursor:pointer;font-size:14px;font-weight:500;color:#64748b;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab:hover{color:#1e40af}
+.tab.active{color:#1e40af;border-bottom-color:#1e40af}
+.content{padding:24px 32px;max-width:1200px;margin:0 auto}
+.card{background:white;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.08);margin-bottom:20px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:white;border-radius:10px;padding:20px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.stat-card .num{font-size:32px;font-weight:700;color:#1e40af}
+.stat-card .label{font-size:13px;color:#64748b;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:10px 12px;background:#f8fafc;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0}
+td{padding:10px 12px;border-bottom:1px solid #f1f5f9}
+tr:hover{background:#f8fafc}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600}
+.badge-admin{background:#dbeafe;color:#1e40af}
+.badge-user{background:#f1f5f9;color:#64748b}
+.badge-active{background:#dcfce7;color:#166534}
+.badge-disabled{background:#fee2e2;color:#991b1b}
+.btn{padding:6px 14px;border:none;border-radius:6px;font-size:12px;cursor:pointer;transition:all .2s}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-primary{background:#1e40af;color:white}.btn-primary:hover{background:#1e3a8a}
+.btn-danger{background:#fee2e2;color:#991b1b}.btn-danger:hover{background:#fecaca}
+.btn-success{background:#dcfce7;color:#166534}.btn-success:hover{background:#bbf7d0}
+.btn-outline{background:transparent;border:1px solid #d1d5db;color:#374151}.btn-outline:hover{background:#f3f4f6}
+.filters{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filters input,.filters select{padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;outline:none}
+.filters input:focus,.filters select:focus{border-color:#3b82f6}
+.pagination{display:flex;gap:8px;justify-content:center;margin-top:16px;align-items:center}
+.pagination button{padding:6px 12px;border:1px solid #d1d5db;border-radius:6px;background:white;cursor:pointer;font-size:13px}
+.pagination button:hover{background:#f3f4f6}
+.pagination button:disabled{opacity:0.4;cursor:default}
+.pagination span{font-size:13px;color:#64748b}
+.hidden{display:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:10000}
+.modal{background:white;border-radius:12px;padding:24px;width:400px;max-width:90vw}
+.modal h3{margin-bottom:16px;font-size:16px}
+.modal input{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;margin-bottom:12px}
+.modal .modal-btns{display:flex;gap:8px;justify-content:flex-end}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>MedSnap 管理后台</h1>
+  <a href="/">← 返回首页</a>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('users')">用户管理</div>
+  <div class="tab" onclick="switchTab('logs')">操作日志</div>
+  <div class="tab" onclick="switchTab('stats')">系统概览</div>
+</div>
+<div class="content">
+
+  <!-- Users Tab -->
+  <div id="tab-users">
+    <div class="card">
+      <div class="filters">
+        <input type="text" id="user-search" placeholder="搜索用户名..." oninput="loadUsers()">
+        <select id="user-role-filter" onchange="loadUsers()">
+          <option value="">全部角色</option>
+          <option value="admin">管理员</option>
+          <option value="user">普通用户</option>
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr><th>用户名</th><th>显示名</th><th>角色</th><th>状态</th><th>注册时间</th><th>操作</th></tr>
+        </thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+      <div class="pagination" id="users-pagination"></div>
+    </div>
+  </div>
+
+  <!-- Logs Tab -->
+  <div id="tab-logs" class="hidden">
+    <div class="card">
+      <div class="filters">
+        <input type="text" id="log-search" placeholder="搜索操作/用户名..." oninput="loadLogs()">
+        <select id="log-action-filter" onchange="loadLogs()">
+          <option value="">全部操作</option>
+          <option value="login">登录</option>
+          <option value="logout">登出</option>
+          <option value="register">注册</option>
+          <option value="upload">上传</option>
+          <option value="extract">提取</option>
+          <option value="delete">删除</option>
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr><th>时间</th><th>用户</th><th>操作</th><th>目标类型</th><th>详情</th><th>IP</th></tr>
+        </thead>
+        <tbody id="logs-tbody"></tbody>
+      </table>
+      <div class="pagination" id="logs-pagination"></div>
+    </div>
+  </div>
+
+  <!-- Stats Tab -->
+  <div id="tab-stats" class="hidden">
+    <div class="stat-grid" id="stats-grid"></div>
+  </div>
+
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal-overlay hidden" id="reset-modal">
+  <div class="modal">
+    <h3>重置密码</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:12px" id="reset-username"></p>
+    <input type="password" id="reset-pw" placeholder="输入新密码（至少6位）">
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeResetModal()">取消</button>
+      <button class="btn btn-primary" onclick="doResetPassword()">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let usersPage=1, logsPage=1;
+const perPage=20;
+let resetUserId=null;
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const tabs=['users','logs','stats'];
+    t.classList.toggle('active', tabs[i]===name);
+  });
+  ['users','logs','stats'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('hidden',t!==name);
+  });
+  if(name==='users') loadUsers();
+  else if(name==='logs') loadLogs();
+  else if(name==='stats') loadStats();
+}
+
+function loadUsers(){
+  const search=document.getElementById('user-search').value;
+  const role=document.getElementById('user-role-filter').value;
+  let url='/api/admin/users?page='+usersPage+'&per_page='+perPage;
+  if(search) url+='&search='+encodeURIComponent(search);
+  if(role) url+='&role='+role;
+  fetch(url).then(r=>r.json()).then(d=>{
+    if(!d.success) return;
+    const tbody=document.getElementById('users-tbody');
+    tbody.innerHTML='';
+    d.users.forEach(u=>{
+      const roleBadge=u.role==='admin'?'<span class="badge badge-admin">管理员</span>':'<span class="badge badge-user">用户</span>';
+      const statusBadge=u.is_active?'<span class="badge badge-active">正常</span>':'<span class="badge badge-disabled">禁用</span>';
+      const toggleBtn=u.is_self?'':'<button class="btn btn-sm '+(u.is_active?'btn-danger':'btn-success')+'" onclick="toggleUser(\''+u.id+'\')">'+(u.is_active?'禁用':'启用')+'</button>';
+      const resetBtn='<button class="btn btn-sm btn-outline" onclick="openResetModal(\''+u.id+'\',\''+u.username+'\')">重置密码</button>';
+      const roleSelect=u.is_self?roleBadge:'<select onchange="changeRole(\''+u.id+'\',this.value)" style="padding:2px 6px;border-radius:4px;border:1px solid #d1d5db;font-size:12px"><option value="user"'+(u.role==='user'?' selected':'')+'>用户</option><option value="admin"'+(u.role==='admin'?' selected':'')+'>管理员</option></select>';
+      tbody.innerHTML+='<tr><td>'+u.username+'</td><td>'+(u.display_name||'-')+'</td><td>'+roleSelect+'</td><td>'+statusBadge+'</td><td>'+(u.create_time||'-')+'</td><td>'+toggleBtn+' '+resetBtn+'</td></tr>';
+    });
+    renderPagination('users-pagination',d.total,d.page,d.total_pages,p=>{usersPage=p;loadUsers();});
+  });
+}
+
+function loadLogs(){
+  const search=document.getElementById('log-search').value;
+  const action=document.getElementById('log-action-filter').value;
+  let url='/api/admin/audit_logs?page='+logsPage+'&per_page='+perPage;
+  if(search) url+='&search='+encodeURIComponent(search);
+  if(action) url+='&action='+encodeURIComponent(action);
+  fetch(url).then(r=>r.json()).then(d=>{
+    if(!d.success) return;
+    const tbody=document.getElementById('logs-tbody');
+    tbody.innerHTML='';
+    d.logs.forEach(l=>{
+      tbody.innerHTML+='<tr><td>'+(l.create_time||'-')+'</td><td>'+(l.username||'-')+'</td><td>'+l.action+'</td><td>'+(l.target_type||'-')+'</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+(l.detail||'')+'">'+(l.detail||'-')+'</td><td>'+(l.ip_address||'-')+'</td></tr>';
+    });
+    renderPagination('logs-pagination',d.total,d.page,d.total_pages,p=>{logsPage=p;loadLogs();});
+  });
+}
+
+function loadStats(){
+  fetch('/api/admin/system_stats').then(r=>r.json()).then(d=>{
+    if(!d.success) return;
+    const s=d.stats;
+    const grid=document.getElementById('stats-grid');
+    grid.innerHTML='';
+    const items=[
+      {label:'总用户数',num:s.total_users},
+      {label:'管理员',num:s.admin_count},
+      {label:'活跃用户',num:s.active_users},
+      {label:'禁用用户',num:s.disabled_users},
+      {label:'今日审计',num:s.today_audit_count},
+      {label:'总审计记录',num:s.total_audit_count}
+    ];
+    items.forEach(it=>{
+      grid.innerHTML+='<div class="stat-card"><div class="num">'+it.num+'</div><div class="label">'+it.label+'</div></div>';
+    });
+  });
+}
+
+function renderPagination(elId,total,page,totalPages,cb){
+  const el=document.getElementById(elId);
+  el.innerHTML='';
+  if(totalPages<=1) return;
+  const prevBtn=document.createElement('button');
+  prevBtn.textContent='上一页';
+  prevBtn.disabled=page<=1;
+  prevBtn.onclick=()=>cb(page-1);
+  el.appendChild(prevBtn);
+  const span=document.createElement('span');
+  span.textContent=page+' / '+totalPages+' (共'+total+'条)';
+  el.appendChild(span);
+  const nextBtn=document.createElement('button');
+  nextBtn.textContent='下一页';
+  nextBtn.disabled=page>=totalPages;
+  nextBtn.onclick=()=>cb(page+1);
+  el.appendChild(nextBtn);
+}
+
+function toggleUser(uid){
+  if(!confirm('确定要切换此用户的状态？')) return;
+  fetch('/api/admin/users/'+uid+'/toggle',{method:'POST'}).then(r=>r.json()).then(d=>{
+    if(d.success) loadUsers(); else alert(d.message||'操作失败');
+  });
+}
+
+function changeRole(uid,role){
+  fetch('/api/admin/users/'+uid,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:role})}).then(r=>r.json()).then(d=>{
+    if(d.success) loadUsers(); else alert(d.message||'操作失败');
+  });
+}
+
+function openResetModal(uid,username){
+  resetUserId=uid;
+  document.getElementById('reset-username').textContent='用户: '+username;
+  document.getElementById('reset-pw').value='';
+  document.getElementById('reset-modal').classList.remove('hidden');
+}
+function closeResetModal(){
+  document.getElementById('reset-modal').classList.add('hidden');
+  resetUserId=null;
+}
+function doResetPassword(){
+  const pw=document.getElementById('reset-pw').value;
+  if(!pw||pw.length<6){alert('密码至少6位');return;}
+  fetch('/api/admin/users/'+resetUserId+'/reset_password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({new_password:pw})}).then(r=>r.json()).then(d=>{
+    if(d.success){closeResetModal();alert('密码已重置');}else{alert(d.message||'操作失败');}
+  });
+}
+
+// Init
+loadUsers();
+</script>
+</body>
+</html>
