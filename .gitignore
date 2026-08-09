@@ -30,3 +30,6 @@ start.bat
 nul
 .DS_Store
 Thumbs.db
+
+# 开发残留（含硬编码密钥，永不提交）
+_dev_notes/
