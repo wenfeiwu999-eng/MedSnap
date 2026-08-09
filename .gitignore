@@ -1,14 +1,32 @@
+# 数据库
 *.db
 *.db-journal
+*.sqlite3
+
+# Python
 __pycache__/
 *.py[cod]
 *.so
 venv/
+
+# 敏感文件
 .env
+.secret_key
+
+# 日志与临时文件
 *.log
 *.tmp
+
+# 测试输出
 test_*.xlsx
+
+# 本地脚本
 start.bat
-.secret_key
+
+# 备份
 *.bak
+
+# 系统垃圾
 nul
+.DS_Store
+Thumbs.db

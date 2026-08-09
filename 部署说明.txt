@@ -1,0 +1,51 @@
+══════════════════════════════════════════════════
+  MedSnap 临床数据智能平台 - 部署说明
+══════════════════════════════════════════════════
+
+【系统要求】
+  - Windows 10 或以上
+  - Python 3.8 或以上版本（安装时勾选 "Add Python to PATH"）
+  - 网络连接（首次安装依赖需要）
+
+【快速开始】
+  1. 将整个 MedSnap 文件夹拷贝到电脑上任意位置
+  2. 双击运行「安装并启动.bat」
+  3. 等待自动安装完成后，浏览器访问 http://localhost:7860
+
+【功能说明】
+  - AI智能识别：通过大模型识别医疗文档、影像
+  - 模板管理：自定义科室模板、数据提取规则
+  - 数据统计：统计分析引擎，可视化呈现
+  - 科研分析：辅助科研数据处理
+
+【AI识别配置】
+  本系统使用阿里云 DashScope API 进行AI识别。
+  默认已内置 API Key，如需使用自己的 Key：
+  - 设置环境变量 DASHSCOPE_API_KEY=你的Key
+  - 或直接修改 config.py 中的 API_KEY
+
+【常见问题】
+  Q: 双击 bat 文件闪退？
+  A: 右键 bat 文件 → 以管理员身份运行；或检查 Python 是否已加入 PATH
+
+  Q: pip 安装失败？
+  A: 尝试手动执行：
+     venv\Scripts\activate.bat
+     pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
+
+  Q: 端口被占用？
+  A: 修改启动命令：python app.py 8080（改为其他端口号）
+
+【文件结构】
+  MedSnap/
+  ├── 安装并启动.bat    ← 双击此文件一键启动
+  ├── app.py            ← 主程序入口
+  ├── config.py         ← 配置文件
+  ├── requirements.txt  ← Python 依赖列表
+  ├── routes/           ← 路由模块
+  ├── services/         ← 服务模块
+  ├── static/           ← 前端静态资源
+  ├── templates/        ← HTML 模板
+  └── *.db              ← SQLite 数据库
+
+══════════════════════════════════════════════════

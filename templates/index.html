@@ -248,7 +248,7 @@
         }
 
         /* ===== Template Modal ===== */
-        .role-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; justify-content: center; align-items: center; z-index: 9999; }
+        .role-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 9999; }
         .modal-content { max-width: 800px; width: 94%; background: white; border-radius: 20px; padding: 36px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .modal-header h2 { font-size: 20px; }
@@ -495,9 +495,9 @@
             </div>
 
             <div class="source-tabs">
-                <div class="source-tab active" onclick="switchSource('quantitative', 'image')">&#128248; 图片/PDF上传</div>
-                <div class="source-tab" onclick="switchSource('quantitative', 'voice')">&#127908; 语音上传</div>
-                <div class="source-tab" onclick="switchSource('quantitative', 'text')">&#128221; 文本输入</div>
+                <div class="source-tab active" onclick="switchSource('quantitative', 'image', event)">&#128248; 图片/PDF上传</div>
+                <div class="source-tab" onclick="switchSource('quantitative', 'voice', event)">&#127908; 语音上传</div>
+                <div class="source-tab" onclick="switchSource('quantitative', 'text', event)">&#128221; 文本输入</div>
             </div>
 
             <div class="source-panel active" id="quant-image">
@@ -571,9 +571,9 @@
             </div>
 
             <div class="source-tabs">
-                <div class="source-tab active" onclick="switchSource('qualitative', 'text')">&#128221; 文本输入</div>
-                <div class="source-tab" onclick="switchSource('qualitative', 'voice')">&#127908; 语音上传</div>
-                <div class="source-tab" onclick="switchSource('qualitative', 'image')">&#128248; 图片上传</div>
+                <div class="source-tab active" onclick="switchSource('qualitative', 'text', event)">&#128221; 文本输入</div>
+                <div class="source-tab" onclick="switchSource('qualitative', 'voice', event)">&#127908; 语音上传</div>
+                <div class="source-tab" onclick="switchSource('qualitative', 'image', event)">&#128248; 图片上传</div>
             </div>
 
             <div class="source-panel active" id="qual-text">
@@ -618,7 +618,7 @@
                     <span class="qual-feature-tag">主题聚类</span>
                     <span class="qual-feature-tag">代表性引用</span>
                 </div>
-                <button class="qual-entry-btn" onclick="processQualitative('text')">&#128300; 进入质性分析平台 &#8594;</button>
+                <button class="qual-entry-btn" onclick="processQualitative('text')">&#128300; 开始质性分析 &#8594;</button>
             </div>
         </div>
 
@@ -995,7 +995,7 @@ function switchDepartment(dept) {
 function autoDetectDepartment() {
     var text = '';
     // 尝试从文本输入获取内容
-    var ta = document.getElementById('quantTextarea');
+    var ta = document.getElementById('quantTextInput');
     if (ta && ta.value.trim().length > 10) {
         text = ta.value.trim();
     }
@@ -1046,12 +1046,12 @@ function switchMethod(method) {
 }
 
 /* ===== Data Source Switch ===== */
-function switchSource(module, source) {
+function switchSource(module, source, evt) {
     var prefix = module === 'qualitative' ? 'qual' : 'quant';
     var container = document.getElementById('panel-' + module);
     var tabs = container.querySelectorAll('.source-tab');
     tabs.forEach(function(t) { t.classList.remove('active'); });
-    event.target.classList.add('active');
+    evt.target.classList.add('active');
     container.querySelectorAll('.source-panel').forEach(function(p) { p.classList.remove('active'); });
     document.getElementById(prefix + '-' + source).classList.add('active');
 }

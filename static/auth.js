@@ -8,7 +8,7 @@ renderAuthBar(data.user);
 function renderAuthBar(user){
 var bar=document.createElement("div");
 bar.id="medsnap-auth-bar";
-bar.style.cssText="position:fixed;top:0;right:0;z-index:9999;display:flex;align-items:center;gap:12px;padding:8px 20px;background:rgba(30,64,175,0.85);backdrop-filter:blur(8px);border-radius:0 0 0 12px;font-size:13px;color:white;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;";
+bar.style.cssText="position:fixed;top:0;right:0;z-index:9997;display:flex;align-items:center;gap:12px;padding:8px 20px;background:rgba(30,64,175,0.85);backdrop-filter:blur(8px);border-radius:0 0 0 12px;font-size:13px;color:white;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;";
 var nameSpan=document.createElement("span");
 nameSpan.textContent=user.display_name||user.username||"用户";
 nameSpan.style.cssText="font-weight:600;";
